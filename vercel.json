@@ -1,0 +1,9 @@
+{
+  "installCommand": "npm install && npm run install-client",
+  "buildCommand": "CI=false NODE_OPTIONS=--openssl-legacy-provider npm run build",
+  "outputDirectory": "client/build",
+  "rewrites": [
+    { "source": "/v1/(.*)", "destination": "/api" },
+    { "source": "/((?!api).*)", "destination": "/index.html" }
+  ]
+}

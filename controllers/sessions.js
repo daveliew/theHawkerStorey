@@ -1,5 +1,5 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const router = express.Router();
 const Users = require("../models/users");
 const jwt = require("jsonwebtoken");
@@ -57,7 +57,7 @@ router.post("/", (req, res) => {
           // res.status(401);
         }
       }
-    }
+    },
   );
 });
 

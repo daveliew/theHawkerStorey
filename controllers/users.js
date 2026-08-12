@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { StatusCodes } = require("http-status-codes");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const Users = require("../models/users");
 
 //? Gets all user profiles
@@ -43,7 +43,7 @@ router.get("/seed", (req, res) => {
     ],
     (err, data) => {
       res.redirect("/v1/users");
-    }
+    },
   );
 });
 
@@ -69,7 +69,7 @@ router.post("/", (req, res) => {
   req.body.password = bcrypt.hashSync(
     //hashSync: return after hashing
     req.body.password,
-    bcrypt.genSaltSync(10) //genSaltSync: generate such that it differs for each user. Number can be changed. Prevents other servers from seeing the same hash/
+    bcrypt.genSaltSync(10), //genSaltSync: generate such that it differs for each user. Number can be changed. Prevents other servers from seeing the same hash/
   );
   Users.create(req.body, (error, createdUser) => {
     if (error) {
@@ -101,7 +101,7 @@ router.put("/:id", (req, res) => {
         res.status(400).json({ error: err.message });
       }
       res.status(200).json(updatedUser);
-    }
+    },
   );
 });
 module.exports = router;
