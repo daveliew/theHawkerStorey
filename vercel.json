@@ -1,5 +1,6 @@
 {
   "framework": null,
+  "regions": ["sin1"],
   "installCommand": "npm install && npm run install-client",
   "buildCommand": "CI=false NODE_OPTIONS=--openssl-legacy-provider npm run build",
   "outputDirectory": "client/build",
