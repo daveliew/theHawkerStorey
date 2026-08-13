@@ -34,18 +34,40 @@ app.use(express.static("./client/build"));
 //* =======================================
 //*            MONGOOSE CONNECTION
 //* =======================================
-if (mongodbURI) {
-  mongoose.connect(mongodbURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true,
-  });
-} else {
-  console.warn(
-    "MONGODB_URI not set — API routes will fail until it is configured",
+// Serverless invocations reuse a warm container but each cold start reconnects.
+// Cache the connect promise and await it per request so queries never hit
+// mongoose's 10s command buffer before the socket is up. A failed connect
+// clears the cache so the next request retries instead of serving a dead handle.
+let connectionPromise = null;
+
+const connectToMongo = () => {
+  if (!mongodbURI) {
+    return Promise.reject(new Error("MONGODB_URI is not configured"));
+  }
+  if (!connectionPromise) {
+    connectionPromise = mongoose
+      .connect(mongodbURI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+        useCreateIndex: true,
+        serverSelectionTimeoutMS: 15000,
+      })
+      .catch((err) => {
+        connectionPromise = null;
+        throw err;
+      });
+  }
+  return connectionPromise;
+};
+
+app.use("/v1", (req, res, next) => {
+  connectToMongo().then(
+    () => next(),
+    (err) =>
+      res.status(503).json({ error: `Database unavailable: ${err.message}` }),
   );
-}
+});
 
 mongoose.connection.on("error", (err) =>
   console.log(err.message + " is Mongod not running?"),
