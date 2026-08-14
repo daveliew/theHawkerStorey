@@ -64,8 +64,11 @@ const connectToMongo = () => {
 app.use("/v1", (req, res, next) => {
   connectToMongo().then(
     () => next(),
-    (err) =>
-      res.status(503).json({ error: `Database unavailable: ${err.message}` }),
+    (err) => {
+      // Driver errors name cluster hosts and the auth source — log, don't echo.
+      console.error("mongo connection failed:", err.message);
+      res.status(503).json({ error: "Database unavailable" });
+    },
   );
 });
 
