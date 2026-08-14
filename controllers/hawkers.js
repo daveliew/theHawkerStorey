@@ -77,35 +77,43 @@ router.get("/:centreName/", (req, res) => {
 
 //? seed hawkerstalls
 //localhost:4000/v1/hawkers/stalls/seed
-router.get("/stalls/seed", (req, res) => {
-  HawkerStalls.create(
-    [
-      {
-        name: "Maxwell Fuzhou Oyster Cake",
-        operating_hours: "0900 - 2000",
-        closed_days: "Sunday",
-        unit_number: "01-05",
-        score: 10,
-        image_url:
-          "https://res.klook.com/image/upload/activities/huzuuwf3pvy2xmresuna.jpg",
-        dishes: ["60fc155e5dd1ad70705c6f32"],
+router.get(
+  "/stalls/seed",
+  (req, res, next) => {
+    // Public GET that writes — harmless on localhost, an open door in production.
+    if (process.env.NODE_ENV === "production") return res.sendStatus(404);
+    next();
+  },
+  (req, res) => {
+    HawkerStalls.create(
+      [
+        {
+          name: "Maxwell Fuzhou Oyster Cake",
+          operating_hours: "0900 - 2000",
+          closed_days: "Sunday",
+          unit_number: "01-05",
+          score: 10,
+          image_url:
+            "https://res.klook.com/image/upload/activities/huzuuwf3pvy2xmresuna.jpg",
+          dishes: ["60fc155e5dd1ad70705c6f32"],
+        },
+        {
+          name: "Stall 22 Hokkien Mee",
+          operating_hours: "1000 - 2300",
+          closed_days: "Monday",
+          unit_number: "01-22",
+          score: 7,
+          image_url:
+            "https://www.misstamchiak.com/wp-content/uploads/2018/12/DSCF5515-6-1300x867.jpg",
+          dishes: ["6101131b908984874f998022"],
+        },
+      ],
+      (err, data) => {
+        res.redirect("/v1/hawkers/stalls");
       },
-      {
-        name: "Stall 22 Hokkien Mee",
-        operating_hours: "1000 - 2300",
-        closed_days: "Monday",
-        unit_number: "01-22",
-        score: 7,
-        image_url:
-          "https://www.misstamchiak.com/wp-content/uploads/2018/12/DSCF5515-6-1300x867.jpg",
-        dishes: ["6101131b908984874f998022"],
-      },
-    ],
-    (err, data) => {
-      res.redirect("/v1/hawkers/stalls");
-    }
-  );
-});
+    );
+  },
+);
 
 //? delete a hawker centre
 router.delete("/:id", (req, res) => {
@@ -129,7 +137,7 @@ router.put("/:id", (req, res) => {
         res.status(400).json({ error: err.message });
       }
       res.status(200).json(updatedCentre);
-    }
+    },
   );
 });
 
@@ -163,7 +171,7 @@ router.put("/:id", (req, res) => {
         res.status(400).json({ error: err.message });
       }
       res.status(200).json(updatedStall);
-    }
+    },
   );
 });
 

@@ -17,35 +17,46 @@ router.get("/", (req, res) => {
 
 //? seed the users
 //localhost:4000/v1/users/seed
-router.get("/seed", (req, res) => {
-  Users.create(
-    [
-      {
-        username: "potcheeks",
-        password: "1234",
-        email: "charrmaine@gmail.com",
-        user_postal_code: "437898",
-        favourite_dishes: ["wanton noodles", "roast pork rice"],
-        dish_cuisine: ["chinese", "chinese"],
-        posts_history: ["60fbbae99ad5dd658ff44cca", "60fbbae99ad5dd658ff44ccb"], //! Reference (POSTS id)
-        liked_posts: "60fbbae99ad5dd658ff44ccb",
+router.get(
+  "/seed",
+  (req, res, next) => {
+    // Public GET that writes — harmless on localhost, an open door in production.
+    if (process.env.NODE_ENV === "production") return res.sendStatus(404);
+    next();
+  },
+  (req, res) => {
+    Users.create(
+      [
+        {
+          username: "potcheeks",
+          password: "1234",
+          email: "charrmaine@gmail.com",
+          user_postal_code: "437898",
+          favourite_dishes: ["wanton noodles", "roast pork rice"],
+          dish_cuisine: ["chinese", "chinese"],
+          posts_history: [
+            "60fbbae99ad5dd658ff44cca",
+            "60fbbae99ad5dd658ff44ccb",
+          ], //! Reference (POSTS id)
+          liked_posts: "60fbbae99ad5dd658ff44ccb",
+        },
+        {
+          username: "sugarplay",
+          password: "1234",
+          email: "fayfey@gmail.com",
+          user_postal_code: "437898",
+          favourite_dishes: ["roti prata", "carbonara"],
+          dish_cuisine: ["indian", "western"],
+          posts_history: "60fbbae99ad5dd658ff44ccc", //! Reference (POSTS id)
+          liked_posts: "60fbbae99ad5dd658ff44ccc",
+        },
+      ],
+      (err, data) => {
+        res.redirect("/v1/users");
       },
-      {
-        username: "sugarplay",
-        password: "1234",
-        email: "fayfey@gmail.com",
-        user_postal_code: "437898",
-        favourite_dishes: ["roti prata", "carbonara"],
-        dish_cuisine: ["indian", "western"],
-        posts_history: "60fbbae99ad5dd658ff44ccc", //! Reference (POSTS id)
-        liked_posts: "60fbbae99ad5dd658ff44ccc",
-      },
-    ],
-    (err, data) => {
-      res.redirect("/v1/users");
-    },
-  );
-});
+    );
+  },
+);
 
 // shows user by ID
 //localhost:4000/v1/users/:id
